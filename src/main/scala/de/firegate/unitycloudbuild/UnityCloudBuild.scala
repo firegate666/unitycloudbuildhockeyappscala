@@ -20,7 +20,7 @@ object Options {
   val host: String = sys.env.getOrElse[String]("HOST", "0.0.0.0")
   val port: Int = sys.env.getOrElse[String]("PORT", "80") toInt
   val unityAPIBase = "https://build-api.cloud.unity3d.com/"
-  val unityCloudAPIKey = sys.env.get("UNITYCLOUD_KEY").toString
+  val unityCloudAPIKey = sys.env.getOrElse[String]("UNITYCLOUD_KEY", "")
   val unityShareLinkBase = "https://developer.cloud.unity3d.com/share/"
   val hockeyappAPIUpload = "https://rink.hockeyapp.net/api/2/apps/upload"
   val hockeyappAPIKey = sys.env.get("HOCKEYAPP_KEY").toString
@@ -80,7 +80,7 @@ object UnityCloudBuild {
     println("Auth " + Options.unityCloudAPIKey)
 
     val request = HttpRequest(uri = buildUrl)
-    request.addHeader(BasicAuthHeader("Basic " + Options.unityCloudAPIKey))
+      .withHeaders(RawHeader("Authorization", "Basic " + Options.unityCloudAPIKey))
 
     println(request.headers.toString())
 
@@ -99,15 +99,4 @@ object UnityCloudBuild {
     println("Started by: " + data.startedBy)
     println("Build status: " + data.buildStatus)
   }
-}
-
-final class BasicAuthHeader(token: String) extends ModeledCustomHeader[BasicAuthHeader] {
-  override def renderInRequests = false
-  override def renderInResponses = false
-  override val companion = BasicAuthHeader
-  override def value: String = token
-}
-object BasicAuthHeader extends ModeledCustomHeaderCompanion[BasicAuthHeader] {
-  override val name = "Authorization"
-  override def parse(value: String) = Try(new BasicAuthHeader(value))
 }
