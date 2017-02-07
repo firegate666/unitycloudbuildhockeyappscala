@@ -1,7 +1,10 @@
-name := "hello"
+name := "unity-cloud-deploy-scala"
 organization := "de.firegate"
 version := "0.1.0"
 scalaVersion := "2.11.8"
+
+herokuAppName in Compile := "unity-cloud-deploy-scala"
+herokuJdkVersion in Compile := "1.8"
 
 scalacOptions ++= Seq(
   "-deprecation",
@@ -65,3 +68,5 @@ initialCommands in console := """
                                 |""".stripMargin
 
 cancelable := true
+
+enablePlugins(JavaAppPackaging)
