@@ -1,3 +1,5 @@
+enablePlugins(JavaServerAppPackaging)
+
 name := "unity-cloud-deploy-scala"
 organization := "de.firegate"
 version := "0.1.0"
@@ -74,4 +76,3 @@ initialCommands in console := """
 
 cancelable := true
 
-enablePlugins(JavaServerAppPackaging)
