@@ -1,2 +1,9 @@
 This is a clone of https://github.com/firegate666/unitycloudbuildhockeyapp but rewitten in Scala to learn the language.
 It uses akka.
+
+TODO
+
+- implement download binary
+- implement push to hockey app
+- implement missing request case classes
+- fix create share link (json unmarshall broken)

@@ -6,7 +6,7 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.stream.ActorMaterializer
 import akka.util.ByteString
-import de.firegate.{JsonUtil, FutureResponseHandler}
+import de.firegate.tools.{JsonUtil, FutureResponseHandler}
 import de.firegate.unitycloudbuild.entities.{ProjectBuildRequestProjectVersion, ProjectBuildSuccessRequest, ProjectBuildQueuedRequest}
 import com.netaporter.uri.Uri.parse
 import de.firegate.unitycloudbuild.Options
