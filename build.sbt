@@ -61,7 +61,7 @@ libraryDependencies ++= Seq(
   "com.netaporter" %% "scala-uri" % "0.4.16"
 )
 
-logLevel := Level.Warn
+logLevel := Level.Debug
 
 // Only show warnings and errors on the screen for compilations.
 // This applies to both test:compile and compile and is Info by default
