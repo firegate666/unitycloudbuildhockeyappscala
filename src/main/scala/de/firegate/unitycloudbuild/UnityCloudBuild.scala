@@ -1,20 +1,21 @@
 package de.firegate.unitycloudbuild
 
-import akka.actor.ActorSystem
+import akka.actor.{Props, Actor, ActorSystem}
+import akka.actor.Status.Success
+import akka.actor.Status.Failure
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.headers.{ModeledCustomHeaderCompanion, ModeledCustomHeader, RawHeader}
-import akka.http.scaladsl.model.{HttpHeader, HttpRequest, StatusCodes, HttpResponse}
+import akka.http.scaladsl.model.headers.RawHeader
+import akka.http.scaladsl.model.{HttpRequest, StatusCodes, HttpResponse}
 import akka.stream.ActorMaterializer
 import akka.http.scaladsl.server.Directives._
+import akka.util.ByteString
+import de.firegate.unitycloudbuild.actors._
+import de.firegate.{FutureResponseHandler, JsonUtil}
+import de.firegate.unitycloudbuild.entities._
 import scala.concurrent.{Await, Future}
 import scala.io.StdIn
-import spray.json.DefaultJsonProtocol._
-import spray.json._
 import scala.concurrent.duration._
-
-
 import scala.language.postfixOps
-import scala.util.{Try, Success}
 
 object Options {
   val host: String = sys.env.getOrElse[String]("HOST", "0.0.0.0")
@@ -33,21 +34,21 @@ object UnityCloudBuild {
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = system.dispatcher
 
-  // json formats
-  implicit val apiEndpointFormat = jsonFormat2(ApiEndpoint)
-  implicit val apiEndpointsFormat = jsonFormat5(ApiEndpoints)
-  implicit val hookRequestFormat = jsonFormat10(HookRequest)
+  val queuedActor = system.actorOf(Props[QueuedActor], name = "queuedActor")
+  val canceledActor = system.actorOf(Props[CanceledActor], name = "canceledActor")
+  val successActor = system.actorOf(Props[SuccessActor], name = "successActor")
+  val startedActor = system.actorOf(Props[StartedActor], name = "startedActor")
+  val projectDetailsActor = system.actorOf(Props[PrintProjectDetailsActor], name = "projectDetailsActor")
 
   def main(args: Array[String]): Unit = {
-
     val route =
       post {
         path("build") {
           entity(as[String]) { hookRequest =>
-            val data = hookRequest.parseJson.convertTo[HookRequest]
+            val data = JsonUtil.fromJson[HookRequest](hookRequest)
             handleRequest(data)
             try {
-              complete(StatusCodes.OK -> "request handled for " + data.projectName)
+              complete(StatusCodes.OK -> s"request handled for ${data.projectName}")
             } catch {
               case x: RuntimeException => complete(StatusCodes.InternalServerError -> x.getMessage)
             }
@@ -65,38 +66,33 @@ object UnityCloudBuild {
   }
 
   def handleRequest(data: HookRequest): Unit = {
-    printProjectDetails(data)
+    projectDetailsActor ! data
 
     val buildAPIURL = data.links.api_self.href
     if (buildAPIURL == "") {
       throw new RuntimeException("No build link from Unity Cloud Build webhook")
     }
 
-    handleBuild(Options.unityAPIBase + buildAPIURL)
+    handleBuild(Options.unityAPIBase + buildAPIURL, data.buildStatus)
   }
 
-  def handleBuild(buildUrl: String): Unit = {
+  def handleBuild(buildUrl: String, buildStatus: String): Unit = {
     println("Connect to " + buildUrl)
     println("Auth " + Options.unityCloudAPIKey)
 
     val request = HttpRequest(uri = buildUrl)
       .withHeaders(RawHeader("Authorization", "Basic " + Options.unityCloudAPIKey))
 
-    println(request.headers.toString())
-
     val futureResponse: Future[HttpResponse] = Http().singleRequest(request)
+    val body = FutureResponseHandler.getBody(futureResponse)
 
-    val response = Await.result(futureResponse, 5.seconds)
-
-    println(response.entity.toString)
-
-  }
-
-
-  def printProjectDetails(data: HookRequest): Unit = {
-    println("Project: " + data.projectName)
-    println("Target: " + data.buildTargetName)
-    println("Started by: " + data.startedBy)
-    println("Build status: " + data.buildStatus)
+    buildStatus match {
+      case "queued" => queuedActor ! JsonUtil.fromJson[ProjectBuildQueuedRequest](body)
+      case "canceled" => canceledActor ! JsonUtil.fromJson[ProjectBuildCanceledRequest](body)
+      case "started" => startedActor ! JsonUtil.fromJson[ProjectBuildStartedRequest](body)
+      case "success" => successActor ! JsonUtil.fromJson[ProjectBuildSuccessRequest](body)
+      case "sentToBuilder" => println("sentToBuilder not implemented yet")
+      case _ => println("unknown build status " + buildStatus)
+    }
   }
 }

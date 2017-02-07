@@ -30,7 +30,8 @@ resolvers ++= Seq(
   "Typesafe Releases" at "https://repo.typesafe.com/typesafe/releases/",
   "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/",
   "Typesafe Simple Repository" at "http://repo.typesafe.com/typesafe/simple/maven-releases/",
-  "TypeSafe Ivy releases" at "http://dl.bintray.com/typesafe/ivy-releases/"
+  "TypeSafe Ivy releases" at "http://dl.bintray.com/typesafe/ivy-releases/",
+  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 )
 
 
@@ -44,7 +45,10 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.3",
   "com.typesafe.akka" %% "akka-http-jackson" % "10.0.3",
   "com.typesafe.akka" %% "akka-http-xml" % "10.0.3",
-  "net.databinder.dispatch" %% "dispatch-core" % "0.11.3"
+  "net.databinder.dispatch" %% "dispatch-core" % "0.11.3",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.2",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.7.2",
+  "com.netaporter" %% "scala-uri" % "0.4.16"
 )
 
 logLevel := Level.Warn
