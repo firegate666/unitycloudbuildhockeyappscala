@@ -6,6 +6,11 @@ scalaVersion := "2.11.8"
 herokuAppName in Compile := "unity-cloud-deploy-scala"
 herokuJdkVersion in Compile := "1.8"
 
+herokuProcessTypes in Compile := Map(
+  "web" -> "target/universal/stage/bin/unity-cloud-deploy-scala -Dhttp.port=$PORT",
+  "worker" -> "java -jar target/universal/stage/lib/de.firegate.unity-cloud-deploy-scala-0.1.0.jar"
+)
+
 scalacOptions ++= Seq(
   "-deprecation",
   "-encoding", "UTF-8",
@@ -69,4 +74,4 @@ initialCommands in console := """
 
 cancelable := true
 
-enablePlugins(JavaAppPackaging)
+enablePlugins(JavaServerAppPackaging)
