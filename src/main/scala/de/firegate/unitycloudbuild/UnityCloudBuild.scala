@@ -34,11 +34,8 @@ object UnityCloudBuild {
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = system.dispatcher
 
-  val queuedActor = system.actorOf(Props[QueuedActor], name = "queuedActor")
-  val canceledActor = system.actorOf(Props[CanceledActor], name = "canceledActor")
-  val successActor = system.actorOf(Props[SuccessActor], name = "successActor")
-  val startedActor = system.actorOf(Props[StartedActor], name = "startedActor")
   val projectDetailsActor = system.actorOf(Props[PrintProjectDetailsActor], name = "projectDetailsActor")
+  val handleBuildActor = system.actorOf(Props[HandleBuildActor], name = "handleBuildActor")
 
   def main(args: Array[String]): Unit = {
     val route =
@@ -73,26 +70,6 @@ object UnityCloudBuild {
       throw new RuntimeException("No build link from Unity Cloud Build webhook")
     }
 
-    handleBuild(Options.unityAPIBase + buildAPIURL, data.buildStatus)
-  }
-
-  def handleBuild(buildUrl: String, buildStatus: String): Unit = {
-    println("Connect to " + buildUrl)
-    println("Auth " + Options.unityCloudAPIKey)
-
-    val request = HttpRequest(uri = buildUrl)
-      .withHeaders(RawHeader("Authorization", "Basic " + Options.unityCloudAPIKey))
-
-    val futureResponse: Future[HttpResponse] = Http().singleRequest(request)
-    val body = FutureResponseHandler.getBody(futureResponse)
-
-    buildStatus match {
-      case "queued" => queuedActor ! JsonUtil.fromJson[ProjectBuildQueuedRequest](body)
-      case "canceled" => canceledActor ! JsonUtil.fromJson[ProjectBuildCanceledRequest](body)
-      case "started" => startedActor ! JsonUtil.fromJson[ProjectBuildStartedRequest](body)
-      case "success" => successActor ! JsonUtil.fromJson[ProjectBuildSuccessRequest](body)
-      case "sentToBuilder" => println("sentToBuilder not implemented yet")
-      case _ => println("unknown build status " + buildStatus)
-    }
+    handleBuildActor ! new HandleBuildActorMessage(Options.unityAPIBase + buildAPIURL, data.buildStatus)
   }
 }
