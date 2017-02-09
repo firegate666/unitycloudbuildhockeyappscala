@@ -12,10 +12,9 @@ object FutureResponseHandler {
    implicit val materializer = ActorMaterializer()
    implicit val executionContext = system.dispatcher
 
-   def getBody(futureResponse: Future[HttpResponse]): String = {
+   def getBody(futureResponse: Future[HttpResponse], timeout: FiniteDuration = 300.millis): String = {
      val response = Await.result(futureResponse, 5.seconds)
 
-     val timeout = 300.millis
      val bs: Future[ByteString] = response.entity.toStrict(timeout).map { _.data }
      val futureBody: Future[String] = bs.map(_.utf8String) // if you indeed need a `String`
      Await.result(futureBody, 5.seconds)
