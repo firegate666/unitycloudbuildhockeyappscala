@@ -33,14 +33,14 @@ class SuccessActor extends Actor {
     val parsed = parse(href)
     val filename = parsed.pathParts.last.part.replaceAll("\\s", "_")
 
-    println(s"Found filename ${filename}")
+    println(s"Found filename $filename")
 
     downloadBinary(href, filename)
     requestShareLink(data)
   }
 
   def downloadBinary(href: String, filename: String): Unit = {
-    println(s"Download binary ${href} to ${filename}")
+    println(s"Download binary $href to $filename")
 
   }
 
