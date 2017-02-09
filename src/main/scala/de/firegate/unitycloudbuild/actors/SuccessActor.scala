@@ -9,7 +9,7 @@ import akka.util.ByteString
 import de.firegate.tools.{JsonUtil, FutureResponseHandler}
 import de.firegate.unitycloudbuild.entities.{ProjectBuildRequestProjectVersion, ProjectBuildSuccessRequest, ProjectBuildQueuedRequest}
 import com.netaporter.uri.Uri.parse
-import de.firegate.unitycloudbuild.Options
+import de.firegate.unitycloudbuild.UnityCloudBuildOptions
 import HttpMethods._
 import MediaTypes._
 
@@ -50,14 +50,14 @@ class SuccessActor extends Actor {
     val shareAPIURL = data.links.create_share.get.href
     val method = data.links.create_share.get.method
 
-    val url = Options.unityAPIBase + shareAPIURL
+    val url = UnityCloudBuildOptions.unityAPIBase + shareAPIURL
 
     val userData = ByteString(JsonUtil.toJson(data))
     val entity = HttpEntity(`application/json`, userData)
 
     val request = HttpRequest(uri = url, entity = entity)
       .withHeaders(
-        RawHeader("Authorization", "Basic " + Options.unityCloudAPIKey)
+        RawHeader("Authorization", "Basic " + UnityCloudBuildOptions.unityCloudAPIKey)
       )
       .withMethod(HttpMethods.getForKey(method.toUpperCase).get)
 
@@ -93,12 +93,12 @@ class SuccessActor extends Actor {
       shareLink
     )
 
-    if (Options.permalinkApiUrl.nonEmpty) {
+    if (UnityCloudBuildOptions.permalinkApiUrl.nonEmpty) {
       val userData = ByteString(JsonUtil.toJson(payload))
       val entity = HttpEntity(`application/json`, userData)
-      val request = HttpRequest(POST, uri = Options.permalinkApiUrl, entity = entity)
+      val request = HttpRequest(POST, uri = UnityCloudBuildOptions.permalinkApiUrl, entity = entity)
         .withHeaders(
-          RawHeader("Authorization", "Basic " + Options.unityCloudAPIKey)
+          RawHeader("Authorization", "Basic " + UnityCloudBuildOptions.unityCloudAPIKey)
         )
 
       Http().singleRequest(request)

@@ -17,7 +17,7 @@ import scala.io.StdIn
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-object Options {
+object UnityCloudBuildOptions {
   val host: String = sys.env.getOrElse[String]("HOST", "0.0.0.0")
   val port: Int = sys.env.getOrElse[String]("PORT", "80") toInt
   val unityAPIBase = "https://build-api.cloud.unity3d.com/"
@@ -34,8 +34,8 @@ object UnityCloudBuild {
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = system.dispatcher
 
-  val projectDetailsActor = system.actorOf(Props[PrintProjectDetailsActor], name = "projectDetailsActor")
-  val handleBuildActor = system.actorOf(Props[HandleBuildActor], name = "handleBuildActor")
+  val projectDetailsActorRef = system.actorOf(Props[PrintProjectDetailsActor], name = "projectDetailsActor")
+  val handleBuildActorRef = system.actorOf(Props[HandleBuildActor], name = "handleBuildActor")
 
   def main(args: Array[String]): Unit = {
     val route =
@@ -53,9 +53,9 @@ object UnityCloudBuild {
         }
       }
 
-    val bindingFuture = Http().bindAndHandle(route, Options.host, Options.port)
+    val bindingFuture = Http().bindAndHandle(route, UnityCloudBuildOptions.host, UnityCloudBuildOptions.port)
 
-    println(s"Server online at http://${Options.host}:${Options.port}/\nPress RETURN to stop...")
+    println(s"Server online at http://${UnityCloudBuildOptions.host}:${UnityCloudBuildOptions.port}/\nPress RETURN to stop...")
     StdIn.readLine() // let it run until user presses return
     bindingFuture
       .flatMap(_.unbind()) // trigger unbinding from the port
@@ -63,13 +63,13 @@ object UnityCloudBuild {
   }
 
   def handleRequest(data: HookRequest): Unit = {
-    projectDetailsActor ! data
+    projectDetailsActorRef ! data
 
     val buildAPIURL = data.links.api_self.href
     if (buildAPIURL == "") {
       throw new RuntimeException("No build link from Unity Cloud Build webhook")
     }
 
-    handleBuildActor ! new HandleBuildActorMessage(Options.unityAPIBase + buildAPIURL, data.buildStatus)
+    handleBuildActorRef ! new HandleBuildActorMessage(UnityCloudBuildOptions.unityAPIBase + buildAPIURL, data.buildStatus)
   }
 }
