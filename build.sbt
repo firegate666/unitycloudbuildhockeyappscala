@@ -1,12 +1,21 @@
-enablePlugins(JavaServerAppPackaging)
+import com.heroku.sbt.HerokuPlugin.autoImport._
+import sbt.Keys._
+import sbt.Level
 
-name := "unity-cloud-deploy-scala"
-organization := "de.firegate"
-version := "0.1.0"
-scalaVersion := "2.11.8"
-
-herokuAppName in Compile := "unity-cloud-deploy-scala"
-herokuJdkVersion in Compile := "1.8"
+lazy val root = (project in file(".")).
+  enablePlugins(JavaServerAppPackaging).
+  settings(
+    name := "unity-cloud-deploy-scala",
+    organization := "de.firegate",
+    version := "0.1.0",
+    scalaVersion := "2.11.8",
+    herokuAppName in Compile := "unity-cloud-deploy-scala",
+    herokuJdkVersion in Compile := "1.8",
+    logLevel := Level.Debug,
+    logLevel in compile := Level.Warn,
+    logLevel in test := Level.Info,
+    cancelable := true
+)
 
 herokuProcessTypes in Compile := Map(
   "web" -> "target/universal/stage/bin/unity-cloud-deploy-scala -Dhttp.port=$PORT",
@@ -51,7 +60,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.4.16",
   "com.typesafe.akka" %% "akka-http-core" % "10.0.3",
   "com.typesafe.akka" %% "akka-http" % "10.0.3",
-  "com.typesafe.akka" %% "akka-http-testkit" % "10.0.3",
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.3",
   "com.typesafe.akka" %% "akka-http-jackson" % "10.0.3",
   "com.typesafe.akka" %% "akka-http-xml" % "10.0.3",
@@ -61,18 +69,7 @@ libraryDependencies ++= Seq(
   "com.netaporter" %% "scala-uri" % "0.4.16"
 )
 
-logLevel := Level.Debug
-
-// Only show warnings and errors on the screen for compilations.
-// This applies to both test:compile and compile and is Info by default
-logLevel in compile := Level.Warn
-
-// Level.INFO is needed to see detailed output when running tests
-logLevel in test := Level.Info
-
 // define the statements initially evaluated when entering 'console', 'console-quick', but not 'console-project'
 initialCommands in console := """
                                 |""".stripMargin
-
-cancelable := true
 
