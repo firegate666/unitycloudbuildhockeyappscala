@@ -6,7 +6,7 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.stream.ActorMaterializer
 import akka.util.ByteString
-import de.firegate.tools.{JsonUtil, FutureResponseHandler}
+import de.firegate.tools.{LogTrait, JsonUtil, FutureResponseHandler}
 import de.firegate.unitycloudbuild.entities.{ProjectBuildRequestProjectVersion, ProjectBuildSuccessRequest, ProjectBuildQueuedRequest}
 import com.netaporter.uri.Uri.parse
 import de.firegate.unitycloudbuild.UnityCloudBuildOptions
@@ -15,7 +15,7 @@ import MediaTypes._
 
 import scala.concurrent.Future
 
-class SuccessActor extends Actor {
+class SuccessActor extends Actor with LogTrait {
 
   implicit val system = this.context.system
   implicit val materializer = ActorMaterializer()
@@ -23,24 +23,24 @@ class SuccessActor extends Actor {
 
    def receive = {
      case data: ProjectBuildSuccessRequest ⇒ handle(data)
-     case _ ⇒ println("received unknown message")
+     case _ ⇒ logger.warn("received unknown message")
    }
 
   def handle(data: ProjectBuildSuccessRequest): Unit = {
-    println(s"handle success ${data.projectName}:${data.buildStatus}")
+    logger.info(s"handle success ${data.projectName}:${data.buildStatus}")
 
     val href = data.links.download_primary.get.href
     val parsed = parse(href)
     val filename = parsed.pathParts.last.part.replaceAll("\\s", "_")
 
-    println(s"Found filename $filename")
+    logger.info(s"Found filename $filename")
 
     downloadBinary(href, filename)
     requestShareLink(data)
   }
 
   def downloadBinary(href: String, filename: String): Unit = {
-    println(s"Download binary $href to $filename")
+    logger.info(s"Download binary $href to $filename")
 
   }
 
@@ -102,9 +102,9 @@ class SuccessActor extends Actor {
         )
 
       Http().singleRequest(request)
-      println("Publish share link finished")
+      logger.info("Publish share link finished")
     } else {
-      println("Publish share disabled")
+      logger.warn("Publish share disabled")
     }
   }
 }

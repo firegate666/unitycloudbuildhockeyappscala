@@ -9,7 +9,8 @@ import akka.http.scaladsl.model.{HttpRequest, StatusCodes, HttpResponse}
 import akka.stream.ActorMaterializer
 import akka.http.scaladsl.server.Directives._
 import akka.util.ByteString
-import de.firegate.tools.{FutureResponseHandler, JsonUtil}
+import com.typesafe.scalalogging.Logger
+import de.firegate.tools.{LogTrait, FutureResponseHandler, JsonUtil}
 import de.firegate.unitycloudbuild.actors._
 import de.firegate.unitycloudbuild.entities._
 import scala.concurrent.{Await, Future}
@@ -28,7 +29,7 @@ object UnityCloudBuildOptions {
   val permalinkApiUrl = sys.env.get("PERMALINK_API_URL").toString
 }
 
-object UnityCloudBuild {
+object UnityCloudBuild extends LogTrait {
 
   implicit val system = ActorSystem()
   implicit val materializer = ActorMaterializer()
@@ -55,7 +56,8 @@ object UnityCloudBuild {
 
     val bindingFuture = Http().bindAndHandle(route, UnityCloudBuildOptions.host, UnityCloudBuildOptions.port)
 
-    println(s"Server online at http://${UnityCloudBuildOptions.host}:${UnityCloudBuildOptions.port}/\nPress RETURN to stop...")
+    logger.info(s"Server online at http://${UnityCloudBuildOptions.host}:${UnityCloudBuildOptions.port}")
+
     StdIn.readLine() // let it run until user presses return
     bindingFuture
       .flatMap(_.unbind()) // trigger unbinding from the port

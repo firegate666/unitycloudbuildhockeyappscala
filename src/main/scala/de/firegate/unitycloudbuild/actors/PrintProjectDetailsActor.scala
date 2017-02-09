@@ -1,19 +1,20 @@
 package de.firegate.unitycloudbuild.actors
 
 import akka.actor.Actor
+import de.firegate.tools.LogTrait
 import de.firegate.unitycloudbuild.entities.{ProjectBuildQueuedRequest, HookRequest}
 
-class PrintProjectDetailsActor extends Actor {
+class PrintProjectDetailsActor extends Actor with LogTrait {
 
   def receive = {
     case data: HookRequest ⇒ print(data)
-    case _ ⇒ println("received unknown message")
+    case _ ⇒ logger.warn("received unknown message")
   }
 
   def print(data: HookRequest): Unit = {
-    println("Project: " + data.projectName)
-    println("Target: " + data.buildTargetName)
-    println("Started by: " + data.startedBy)
-    println("Build status: " + data.buildStatus)
+    logger.info("Project: " + data.projectName)
+    logger.info("Target: " + data.buildTargetName)
+    logger.info("Started by: " + data.startedBy)
+    logger.info("Build status: " + data.buildStatus)
   }
 }

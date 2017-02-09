@@ -66,7 +66,9 @@ libraryDependencies ++= Seq(
   "net.databinder.dispatch" %% "dispatch-core" % "0.11.3",
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.2",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.7.2",
-  "com.netaporter" %% "scala-uri" % "0.4.16"
+  "com.netaporter" %% "scala-uri" % "0.4.16",
+  "ch.qos.logback" % "logback-classic" % "1.1.7",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
 )
 
 // define the statements initially evaluated when entering 'console', 'console-quick', but not 'console-project'
