@@ -19,8 +19,8 @@ object UnityCloudBuildOptions {
   val unityCloudAPIKey = sys.env.getOrElse[String]("UNITYCLOUD_KEY", "")
   val unityShareLinkBase = "https://developer.cloud.unity3d.com/share/"
   val hockeyappAPIUpload = "https://rink.hockeyapp.net/api/2/apps/upload"
-  val hockeyappAPIKey = sys.env.get("HOCKEYAPP_KEY").toString
-  val permalinkApiUrl = sys.env.get("PERMALINK_API_URL").toString
+  val hockeyappAPIKey = sys.env.getOrElse[String]("HOCKEYAPP_KEY", "")
+  val permalinkApiUrl = sys.env.getOrElse[String]("PERMALINK_API_URL", "")
 }
 
 object UnityCloudBuild extends LogTrait {
