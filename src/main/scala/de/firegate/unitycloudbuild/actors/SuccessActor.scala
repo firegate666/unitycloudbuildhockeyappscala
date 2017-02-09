@@ -17,7 +17,7 @@ import scala.concurrent.Future
 
 class SuccessActor extends Actor {
 
-  implicit val system = ActorSystem()
+  implicit val system = this.context.system
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = system.dispatcher
 
