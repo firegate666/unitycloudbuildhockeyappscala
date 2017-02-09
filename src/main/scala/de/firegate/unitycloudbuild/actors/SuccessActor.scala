@@ -1,8 +1,7 @@
 package de.firegate.unitycloudbuild.actors
 
-import akka.actor.Actor
+import akka.actor.{Actor, Props}
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model.MediaTypes._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.RawHeader
@@ -11,7 +10,7 @@ import akka.util.ByteString
 import com.netaporter.uri.Uri.parse
 import de.firegate.tools.{FutureResponseHandler, JsonUtil, LogTrait}
 import de.firegate.unitycloudbuild.UnityCloudBuildOptions
-import de.firegate.unitycloudbuild.entities.{ProjectBuildRequestProjectVersion, ProjectBuildSuccessRequest}
+import de.firegate.unitycloudbuild.entities.{ProjectBuildSuccessRequest, ShareData}
 
 import scala.concurrent.Future
 
@@ -20,6 +19,8 @@ class SuccessActor extends Actor with LogTrait {
   implicit val system = this.context.system
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = system.dispatcher
+
+  var permalinkActorRef = system.actorOf(Props[PermalinkActor], name = "permalinkActor")
 
    def receive = {
      case data: ProjectBuildSuccessRequest ⇒ handle(data)
@@ -41,10 +42,7 @@ class SuccessActor extends Actor with LogTrait {
 
   def downloadBinary(href: String, filename: String): Unit = {
     logger.info(s"Download binary $href to $filename")
-
   }
-
-  case class ShareData(shareid: String)
 
   def requestShareLink(data: ProjectBuildSuccessRequest): Unit = {
     val shareAPIURL = data.links.create_share.get.href
@@ -63,48 +61,8 @@ class SuccessActor extends Actor with LogTrait {
 
     val futureResponse: Future[HttpResponse] = Http().singleRequest(request)
     val body = FutureResponseHandler.getBody(futureResponse)
-    /*val shareData = JsonUtil.fromJson[ShareData](body)
+    val shareData = JsonUtil.fromJson[ShareData](body)
 
-    publishShareLink(data, Options.unityShareLinkBase + shareData.shareid)*/
-  }
-
-  case class Payload(
-    build: Int,
-    buildtargetid: String,
-    buildTargetName: String,
-    platform: String,
-    finished: String,
-    projectName: String,
-    projectId: String,
-    projectVersion: ProjectBuildRequestProjectVersion,
-    shareLink: String
-  )
-
-  def publishShareLink(data: ProjectBuildSuccessRequest, shareLink: String): Unit = {
-    val payload = new Payload(
-      data.build,
-      data.buildtargetid,
-      data.buildTargetName,
-      data.platform,
-      data.finished,
-      data.projectName,
-      data.projectId,
-      data.projectVersion,
-      shareLink
-    )
-
-    if (UnityCloudBuildOptions.permalinkApiUrl.nonEmpty) {
-      val userData = ByteString(JsonUtil.toJson(payload))
-      val entity = HttpEntity(`application/json`, userData)
-      val request = HttpRequest(POST, uri = UnityCloudBuildOptions.permalinkApiUrl, entity = entity)
-        .withHeaders(
-          RawHeader("Authorization", "Basic " + UnityCloudBuildOptions.unityCloudAPIKey)
-        )
-
-      Http().singleRequest(request)
-      logger.info("Publish share link finished")
-    } else {
-      logger.warn("Publish share disabled")
-    }
+    permalinkActorRef ! new PermalinkActorMessage(data, UnityCloudBuildOptions.unityShareLinkBase + shareData.shareid)
   }
 }
