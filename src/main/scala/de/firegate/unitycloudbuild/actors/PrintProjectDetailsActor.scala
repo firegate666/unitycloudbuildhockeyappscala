@@ -2,7 +2,7 @@ package de.firegate.unitycloudbuild.actors
 
 import akka.actor.Actor
 import de.firegate.tools.LogTrait
-import de.firegate.unitycloudbuild.entities.{ProjectBuildQueuedRequest, HookRequest}
+import de.firegate.unitycloudbuild.entities.HookRequest
 
 class PrintProjectDetailsActor extends Actor with LogTrait {
 

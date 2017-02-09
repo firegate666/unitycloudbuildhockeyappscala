@@ -1,17 +1,17 @@
 package de.firegate.unitycloudbuild.actors
 
-import akka.actor.{ActorSystem, Actor}
+import akka.actor.Actor
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.HttpMethods._
+import akka.http.scaladsl.model.MediaTypes._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.stream.ActorMaterializer
 import akka.util.ByteString
-import de.firegate.tools.{LogTrait, JsonUtil, FutureResponseHandler}
-import de.firegate.unitycloudbuild.entities.{ProjectBuildRequestProjectVersion, ProjectBuildSuccessRequest, ProjectBuildQueuedRequest}
 import com.netaporter.uri.Uri.parse
+import de.firegate.tools.{FutureResponseHandler, JsonUtil, LogTrait}
 import de.firegate.unitycloudbuild.UnityCloudBuildOptions
-import HttpMethods._
-import MediaTypes._
+import de.firegate.unitycloudbuild.entities.{ProjectBuildRequestProjectVersion, ProjectBuildSuccessRequest}
 
 import scala.concurrent.Future
 

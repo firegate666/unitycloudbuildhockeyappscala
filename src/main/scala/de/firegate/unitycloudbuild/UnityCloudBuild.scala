@@ -1,21 +1,15 @@
 package de.firegate.unitycloudbuild
 
-import akka.actor.{Props, Actor, ActorSystem}
-import akka.actor.Status.Success
-import akka.actor.Status.Failure
+import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.model.{HttpRequest, StatusCodes, HttpResponse}
-import akka.stream.ActorMaterializer
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
-import akka.util.ByteString
-import com.typesafe.scalalogging.Logger
-import de.firegate.tools.{LogTrait, FutureResponseHandler, JsonUtil}
+import akka.stream.ActorMaterializer
+import de.firegate.tools.{JsonUtil, LogTrait}
 import de.firegate.unitycloudbuild.actors._
 import de.firegate.unitycloudbuild.entities._
-import scala.concurrent.{Await, Future}
+
 import scala.io.StdIn
-import scala.concurrent.duration._
 import scala.language.postfixOps
 
 object UnityCloudBuildOptions {

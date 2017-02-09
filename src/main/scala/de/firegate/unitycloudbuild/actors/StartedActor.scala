@@ -2,7 +2,7 @@ package de.firegate.unitycloudbuild.actors
 
 import akka.actor.Actor
 import de.firegate.tools.LogTrait
-import de.firegate.unitycloudbuild.entities.{ProjectBuildStartedRequest, ProjectBuildCanceledRequest}
+import de.firegate.unitycloudbuild.entities.ProjectBuildStartedRequest
 
 class StartedActor extends Actor with LogTrait {
 

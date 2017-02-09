@@ -1,13 +1,14 @@
 package de.firegate.unitycloudbuild.actors
 
-import akka.actor.{Props, Actor}
+import akka.actor.{Actor, Props}
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpResponse, HttpRequest}
 import akka.http.scaladsl.model.headers.RawHeader
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.stream.ActorMaterializer
-import de.firegate.tools.{LogTrait, JsonUtil, FutureResponseHandler}
-import de.firegate.unitycloudbuild.entities.{ProjectBuildStartedRequest, ProjectBuildCanceledRequest, ProjectBuildQueuedRequest, ProjectBuildSuccessRequest}
+import de.firegate.tools.{FutureResponseHandler, JsonUtil, LogTrait}
 import de.firegate.unitycloudbuild.UnityCloudBuildOptions
+import de.firegate.unitycloudbuild.entities.{ProjectBuildCanceledRequest, ProjectBuildQueuedRequest, ProjectBuildStartedRequest, ProjectBuildSuccessRequest}
+
 import scala.concurrent.Future
 
 case class HandleBuildActorMessage(buildUrl: String, buildStatus: String)
