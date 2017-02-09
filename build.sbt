@@ -68,7 +68,8 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.7.2",
   "com.netaporter" %% "scala-uri" % "0.4.16",
   "ch.qos.logback" % "logback-classic" % "1.1.7",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
+  "com.propensive" %% "rapture" % "2.0.0-M7"
 )
 
 // define the statements initially evaluated when entering 'console', 'console-quick', but not 'console-project'

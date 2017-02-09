@@ -1,5 +1,7 @@
 package de.firegate.unitycloudbuild.actors
 
+import java.io.File
+
 import akka.actor.{Actor, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.MediaTypes._
@@ -11,6 +13,7 @@ import com.netaporter.uri.Uri.parse
 import de.firegate.tools.{FutureResponseHandler, JsonUtil, LogTrait}
 import de.firegate.unitycloudbuild.UnityCloudBuildOptions
 import de.firegate.unitycloudbuild.entities.{ProjectBuildSuccessRequest, ShareData}
+import rapture.uri._
 
 import scala.concurrent.Future
 
@@ -42,6 +45,12 @@ class SuccessActor extends Actor with LogTrait {
 
   def downloadBinary(href: String, filename: String): Unit = {
     logger.info(s"Download binary $href to $filename")
+
+    new File(filename).delete()
+
+    val request = HttpRequest(HttpMethods.GET, uri = href)
+    val futureResponse: Future[HttpResponse] = Http().singleRequest(request)
+    val body = FutureResponseHandler.getBody(futureResponse)
   }
 
   def requestShareLink(data: ProjectBuildSuccessRequest): Unit = {
