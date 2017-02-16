@@ -1,21 +1,23 @@
 package de.firegate.unitycloudbuild.actors
 
-import java.io.File
+import java.io.{FileWriter, BufferedWriter, File}
+import java.net.URI
 
 import akka.actor.{Actor, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.MediaTypes._
+import akka.http.scaladsl.model.Multipart.FormData.BodyPart
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.stream.ActorMaterializer
 import akka.util.ByteString
 import com.netaporter.uri.Uri.parse
-import de.firegate.tools.{FutureResponseHandler, JsonUtil, LogTrait}
+import de.firegate.tools._
 import de.firegate.unitycloudbuild.UnityCloudBuildOptions
 import de.firegate.unitycloudbuild.entities.{ProjectBuildSuccessRequest, ShareData}
-import rapture.uri._
-
 import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.util.{Failure, Success}
 
 class SuccessActor extends Actor with LogTrait {
 
@@ -39,18 +41,55 @@ class SuccessActor extends Actor with LogTrait {
 
     logger.info(s"Found filename $filename")
 
-    downloadBinary(href, filename)
     requestShareLink(data)
+    downloadBinary(href, filename)
+  }
+
+  def uploadToHockeyApp(file: File): Unit = {
+    logger.info("Upload to hockeyapp")
+
+    val uri = new URI(UnityCloudBuildOptions.hockeyAppUrl)
+    val properties = Map(
+      "status" -> "2", // to make the version available for download
+      "notes" -> "Automated release triggered from Unity Cloud Build.",
+      "notes_type" -> "0",
+      "notify" -> "0"
+    )
+
+    val header = Map(
+      "X-HockeyAppToken" -> UnityCloudBuildOptions.hockeyappAPIKey,
+      "Accept" -> "application/json"
+    )
+
+    val futureResponse = Uploader.uploadToFacebook(uri, file, properties, header)
+
+    logger.info("Upload started")
+
+    futureResponse onComplete {
+      case Success(response) => logger.info(s"Upload finished ${response.get}")
+      case Failure(t) => logger.error(s"Error while uploading to hockey app ${t.getMessage}")
+    }
+  }
+
+  def uploadToPlayStore(file: File): Unit = {
+    logger.warn("Upload to GPS not implemented yet")
   }
 
   def downloadBinary(href: String, filename: String): Unit = {
-    logger.info(s"Download binary $href to $filename")
-
-    new File(filename).delete()
+    val tmpFileName = Tools.tmpFileName() + filename
+    logger.info(s"Download binary $href to $tmpFileName")
 
     val request = HttpRequest(HttpMethods.GET, uri = href)
     val futureResponse: Future[HttpResponse] = Http().singleRequest(request)
-    val body = FutureResponseHandler.getBody(futureResponse)
+    val body = FutureResponseHandler.getBody(futureResponse, 1.minutes)
+
+    val file = new File(tmpFileName)
+    val bw = new BufferedWriter(new FileWriter(file, false)) // explicit overwrite
+    bw.write(body)
+    bw.close()
+
+    uploadToHockeyApp(file)
+    uploadToPlayStore(file)
   }
 
   def requestShareLink(data: ProjectBuildSuccessRequest): Unit = {

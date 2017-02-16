@@ -8,6 +8,7 @@ import akka.stream.ActorMaterializer
 import de.firegate.tools.{JsonUtil, LogTrait}
 import de.firegate.unitycloudbuild.actors._
 import de.firegate.unitycloudbuild.entities._
+import rapture.uri./
 
 import scala.io.StdIn
 import scala.language.postfixOps
@@ -21,6 +22,7 @@ object UnityCloudBuildOptions {
   val hockeyappAPIUpload = "https://rink.hockeyapp.net/api/2/apps/upload"
   val hockeyappAPIKey = sys.env.getOrElse[String]("HOCKEYAPP_KEY", "")
   val permalinkApiUrl = sys.env.getOrElse[String]("PERMALINK_API_URL", "")
+  val hockeyAppUrl = "https://rink.hockeyapp.net/api/2/apps/upload/"
 }
 
 object UnityCloudBuild extends LogTrait {

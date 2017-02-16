@@ -69,7 +69,10 @@ libraryDependencies ++= Seq(
   "com.netaporter" %% "scala-uri" % "0.4.16",
   "ch.qos.logback" % "logback-classic" % "1.1.7",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
-  "com.propensive" %% "rapture" % "2.0.0-M7"
+  "com.propensive" %% "rapture" % "2.0.0-M7",
+  "org.apache.httpcomponents" % "httpclient" % "4.5.3",
+  "org.apache.httpcomponents" % "httpmime" % "4.3.1"
+
 )
 
 // define the statements initially evaluated when entering 'console', 'console-quick', but not 'console-project'
