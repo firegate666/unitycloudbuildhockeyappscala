@@ -6,4 +6,3 @@ TODO
 - implement download binary
 - implement push to hockey app
 - implement missing request case classes
-- fix create share link (json unmarshall broken)
