@@ -48,7 +48,7 @@ class SuccessActor extends Actor with LogTrait {
   def uploadToHockeyApp(file: File): Unit = {
     logger.info("Upload to hockeyapp")
 
-    val uri = new URI(UnityCloudBuildOptions.hockeyAppUrl)
+    val uri = new URI(UnityCloudBuildOptions.hockeyappAPIUpload)
     val properties = Map(
       "status" -> "2", // to make the version available for download
       "notes" -> "Automated release triggered from Unity Cloud Build.",
