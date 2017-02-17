@@ -20,7 +20,7 @@ object Uploader {
     HttpClients.custom().setConnectionManager(connManager).build()
   }
 
-  def uploadToFacebook(uri: URI, file: File, properties: Map[String, String], header: Map[String, String]): Future[Try[String]] = {
+  def run(uri: URI, file: File, properties: Map[String, String], header: Map[String, String]): Future[Try[String]] = {
     import ExecutionContext.Implicits.global
 
     Future {
@@ -42,8 +42,6 @@ object Uploader {
         for ((name, value) <- properties) {
           httpPost.addHeader(name, value)
         }
-
-        println(httpPost.getAllHeaders.flatMap(x => x.getName + ":" + x.getValue))
 
         // Execute the request in a new HttpContext
         val ctx = HttpClientContext.create()

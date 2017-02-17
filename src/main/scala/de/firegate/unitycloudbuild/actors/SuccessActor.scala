@@ -61,7 +61,7 @@ class SuccessActor extends Actor with LogTrait {
       "Accept" -> "application/json"
     )
 
-    val futureResponse = Uploader.uploadToFacebook(uri, file, properties, header)
+    val futureResponse = Uploader.run(uri, file, properties, header)
 
     logger.info("Upload started")
 
