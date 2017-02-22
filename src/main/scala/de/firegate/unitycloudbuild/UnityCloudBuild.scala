@@ -35,6 +35,11 @@ object UnityCloudBuild extends LogTrait {
 
   def main(args: Array[String]): Unit = {
     val route =
+      get {
+        path("check") {
+          complete("OK")
+        }
+      } ~
       post {
         path("build") {
           entity(as[String]) { hookRequest =>
