@@ -79,3 +79,4 @@ libraryDependencies ++= Seq(
 initialCommands in console := """
                                 |""".stripMargin
 
+Revolver.settings
