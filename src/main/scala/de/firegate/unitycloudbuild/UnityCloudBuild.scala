@@ -53,10 +53,11 @@ object UnityCloudBuild extends LogTrait {
 
     logger.info(s"Server online at http://${UnityCloudBuildOptions.host}:${UnityCloudBuildOptions.port}")
 
-    StdIn.readLine() // let it run until user presses return
+    /*StdIn.readLine() // let it run until user presses return
     bindingFuture
       .flatMap(_.unbind()) // trigger unbinding from the port
       .onComplete(_ ⇒ system.terminate()) // and shutdown when done
+      */
   }
 
   def handleRequest(data: HookRequest): Unit = {
