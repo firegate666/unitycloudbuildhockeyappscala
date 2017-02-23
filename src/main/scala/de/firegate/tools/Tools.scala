@@ -10,7 +10,7 @@ object Tools {
   }
 
   def tmpDir(): String = {
-    "tmp/"//sys.props.getOrElse("java.io.tmpdir", "NULL")
+    "/tmp/"//sys.props.getOrElse("java.io.tmpdir", "NULL")
   }
 
   def tmpFileName(prefix: String = "", suffix: String = ""): String = {
