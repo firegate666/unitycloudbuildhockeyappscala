@@ -83,7 +83,7 @@ class SuccessActor extends Actor with LogTrait {
     val futureResponse: Future[HttpResponse] = Http().singleRequest(request)
     val body = FutureResponseHandler.getBody(futureResponse, 1.minutes)
 
-    val file = File.createTempFile("unity", "hockey")//new File(tmpFileName)
+    val file = new File(tmpFileName)
     val bw = new BufferedWriter(new FileWriter(file, false)) // explicit overwrite
     bw.write(body)
     bw.close()
