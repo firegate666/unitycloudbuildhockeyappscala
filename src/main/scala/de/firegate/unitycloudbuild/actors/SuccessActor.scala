@@ -88,6 +88,8 @@ class SuccessActor extends Actor with LogTrait {
     bw.write(body)
     bw.close()
 
+    logger.info("File writter bytes " + file.getTotalSpace)
+
     uploadToHockeyApp(file)
     uploadToPlayStore(file)
   }
