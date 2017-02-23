@@ -13,7 +13,7 @@ import org.apache.http.impl.client.HttpClients
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
-object Uploader {
+object Uploader extends LogTrait {
 
   lazy val httpClient = {
     val connManager = new PoolingHttpClientConnectionManager()
@@ -39,8 +39,8 @@ object Uploader {
         val httpPost = new HttpPost(uri)
         httpPost.setEntity(reqEntity.build())
 
-        for ((name, value) <- properties) {
-          httpPost.addHeader(name, value)
+        for ((name, value) <- header) {
+          httpPost.setHeader(name, value)
         }
 
         // Execute the request in a new HttpContext
